@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Name - Portfolio</title>
+    <title>Pratap Singh Rawat - Portfolio</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Three.js CDN -->
@@ -90,7 +90,7 @@
     <!-- Navigation Bar -->
     <nav class="fixed w-full bg-slate-900 bg-opacity-90 z-50 shadow-lg py-4">
         <div class="container mx-auto flex justify-between items-center px-4">
-            <a href="#hero-section" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300 transition-colors">YourName</a>
+            <a href="#hero-section" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300 transition-colors">Pratap Singh Rawat</a>
             <div class="hidden md:flex space-x-6">
                 <a href="#about-section" class="text-slate-300 hover:text-indigo-400 transition-colors">About</a>
                 <a href="#skills-section" class="text-slate-300 hover:text-indigo-400 transition-colors">Skills</a>
@@ -118,7 +118,7 @@
         <div id="threejs-container" class="absolute inset-0"></div>
         <div id="hero-content" class="relative z-10 p-4 max-w-4xl mx-auto rounded-xl bg-slate-900 bg-opacity-70 shadow-2xl backdrop-blur-sm">
             <h1 class="text-5xl md:text-7xl font-extrabold leading-tight text-white mb-4 animate-fade-in-down">
-                Hi, I'm <span class="text-indigo-400">[Your Name]</span>
+                Hi, I'm <span class="text-indigo-400">Pratap Singh Rawat</span>
             </h1>
             <p class="text-xl md:text-3xl text-slate-300 mb-8 animate-fade-in-up">
                 A Creative <span class="text-teal-300">Video Editor</span> & Versatile <span class="text-purple-300">Software Developer</span>
@@ -311,7 +311,7 @@
                 <p class="text-lg text-slate-300 text-center mb-8">
                     Interested in collaborating or just want to say hello? Feel free to reach out!
                 </p>
-                <form class="space-y-6">
+                <form id="contact-form" class="space-y-6">
                     <div>
                         <label for="name" class="block text-slate-300 text-sm font-semibold mb-2">Name</label>
                         <input type="text" id="name" name="name" class="w-full p-3 rounded-md bg-slate-700 border border-slate-600 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 text-white" placeholder="Your Name" required>
@@ -325,8 +325,9 @@
                         <textarea id="message" name="message" rows="6" class="w-full p-3 rounded-md bg-slate-700 border border-slate-600 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 text-white" placeholder="Your message..." required></textarea>
                     </div>
                     <div class="text-center">
-                        <button type="submit" class="btn-primary hover-scale">Send Message</button>
+                        <button type="submit" id="submit-button" class="btn-primary hover-scale">Send Message</button>
                     </div>
+                    <div id="form-message" class="mt-4 text-center text-lg font-medium"></div>
                 </form>
                 <div class="mt-8 text-center text-slate-400">
                     <p>Or find me on:</p>
@@ -435,6 +436,63 @@
             });
         });
 
+        // --- Contact Form Submission Logic ---
+        const contactForm = document.getElementById('contact-form');
+        const formMessage = document.getElementById('form-message');
+        const submitButton = document.getElementById('submit-button'); // Get the submit button
+
+        contactForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            // Disable button and show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+            submitButton.classList.add('opacity-70', 'cursor-not-allowed'); // Add visual disabled styling
+
+            formMessage.textContent = 'Sending message...';
+            formMessage.className = 'mt-4 text-center text-lg font-medium text-blue-400'; // Set loading style
+
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                message: document.getElementById('message').value,
+            };
+
+            try {
+                // IMPORTANT: Replace with the actual URL of your backend server
+                // If running locally, it's likely http://localhost:3000/api/contact
+                const response = await fetch('http://localhost:3000/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    formMessage.textContent = result.message;
+                    formMessage.className = 'mt-4 text-center text-lg font-medium text-green-500'; // Success style
+                    contactForm.reset(); // Clear the form
+                } else {
+                    // Display specific error message from backend if available, otherwise generic
+                    formMessage.textContent = result.message || 'Failed to send message. Please check your input.';
+                    formMessage.className = 'mt-4 text-center text-lg font-medium text-red-500'; // Error style
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                formMessage.textContent = 'Network error or server unreachable. Please try again later.';
+                formMessage.className = 'mt-4 text-center text-lg font-medium text-red-500'; // Error style
+            } finally {
+                // Re-enable button and revert text/style
+                submitButton.disabled = false;
+                submitButton.textContent = 'Send Message';
+                submitButton.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        });
+
+
         // Initialize Three.js on window load
         window.onload = function() {
             initThreeJS();
@@ -444,3 +502,4 @@
     </script>
 </body>
 </html>
+
